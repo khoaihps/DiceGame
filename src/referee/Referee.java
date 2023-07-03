@@ -44,22 +44,29 @@ public class Referee {
             addPlayer(virtualPlayer);
             System.out.println(virtualPlayerName + " được thêm vào.");
         }
-        scanner.close();
+        // scanner.close();
     }
 
     public void playGame() {
+        Scanner scanner = new Scanner(System.in);
         while (true) {
             for (Player player : players) {
-                try {
-                    Thread.sleep(2000); // Delay for 2 seconds (2000 milliseconds)
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                if (player instanceof VirtualPlayer) {
+                    try {
+                        Thread.sleep(1500); // Delay for 2 seconds (2000 milliseconds)
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
                 // Set random dice
                 Random random = new Random();
                 int randomDice = random.nextInt(4) + 1;
                 dice.setId(randomDice);
                 System.out.println("\nNgười chơi " + player.getName() + " nhận xúc xắc " + randomDice + ".");
+                if (!(player instanceof VirtualPlayer)) {
+                    System.out.print("Enter để gieo...");
+                    scanner.nextLine();
+                }
 
                 // Roll dice
                 int diceValue = dice.roll();
@@ -69,6 +76,7 @@ public class Referee {
                 // Update player's score
                 if (player.getScore() + diceValue == 21) {
                     player.setScore(21);
+                    scanner.close();
                     announceWinner(player);
                     return;
                 } else if (player.getScore() + diceValue > 21) {
