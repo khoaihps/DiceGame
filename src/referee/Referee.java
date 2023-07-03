@@ -51,6 +51,7 @@ public class Referee {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             for (Player player : players) {
+                // Nếu là bot sẽ tự gieo xúc xắc và delay 1500ms
                 if (player instanceof VirtualPlayer) {
                     try {
                         Thread.sleep(1500); // Delay for 2 seconds (2000 milliseconds)
@@ -58,13 +59,16 @@ public class Referee {
                         e.printStackTrace();
                     }
                 }
+
                 // Set random dice
                 Random random = new Random();
                 int randomDice = random.nextInt(4) + 1;
                 dice.setId(randomDice);
                 System.out.println("\nNgười chơi " + player.getName() + " nhận xúc xắc " + randomDice + ".");
+
+                // Nếu là người chơi thật tương tác để gieo
                 if (!(player instanceof VirtualPlayer)) {
-                    System.out.print("Enter để gieo...");
+                    System.out.print("Enter để GIEO...");
                     scanner.nextLine();
                 }
 
