@@ -13,6 +13,7 @@ import java.util.Scanner;
 public class Referee {
     private List<Player> players;
     private Dice dice;
+    private Scanner scanner;
 
     public Referee() {
         this.players = new ArrayList<>();
@@ -24,11 +25,22 @@ public class Referee {
     }
 
     public void setupGame() {
-        Scanner scanner = new Scanner(System.in);
+        scanner = new Scanner(System.in);
+        int numberOfPlayers;
 
-        System.out.print("Nhập số người chơi: ");
-        int numberOfPlayers = scanner.nextInt();
-        scanner.nextLine(); 
+        while (true) {
+            try {
+                System.out.print("Nhập số người chơi (0-4): ");
+                numberOfPlayers = Integer.parseInt(scanner.nextLine());
+
+                if (numberOfPlayers < 0 || numberOfPlayers > 4) {
+                    throw new IllegalArgumentException();
+                }
+                break;
+            } catch (IllegalArgumentException e) {
+                System.out.println("Số người chơi không hợp lệ.");
+            }
+        }
 
         // Nhập thông tin người chơi
         for (int i = 0; i < numberOfPlayers; i++) {
@@ -48,50 +60,63 @@ public class Referee {
     }
 
     public void playGame() {
-        Scanner scanner = new Scanner(System.in);
         while (true) {
-            for (Player player : players) {
-                // Nếu là bot sẽ tự gieo xúc xắc và delay 1500ms
-                if (player instanceof VirtualPlayer) {
-                    try {
-                        Thread.sleep(1500); // Delay for 2 seconds (2000 milliseconds)
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+            int playerId = 0;
+            while (true) {
+                try {
+                    System.out.print("\nTrọng tài chỉ đinh người chơi (1-4): ");
+                    playerId = Integer.parseInt(scanner.nextLine());
+
+                    if (playerId < 1 || playerId > 4) {
+                        throw new IllegalArgumentException();
                     }
+                    break;
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Chỉ định người không hợp lệ. Vui lòng chỉ định lại.");
                 }
-
-                // Set random dice
-                Random random = new Random();
-                int randomDice = random.nextInt(4) + 1;
-                dice.setId(randomDice);
-                System.out.println("\nNgười chơi " + player.getName() + " nhận xúc xắc " + randomDice + ".");
-
-                // Nếu là người chơi thật tương tác để gieo
-                if (!(player instanceof VirtualPlayer)) {
-                    System.out.print("Enter để GIEO...");
-                    scanner.nextLine();
-                }
-
-                // Roll dice
-                int diceValue = dice.roll();
-                System.out.println("Người chơi " + player.getName() + " gieo được " + diceValue + " điểm.");
-                System.out.println("Điểm cũ cộng điểm mới: " + player.getScore() + " + " + diceValue + " = " + (player.getScore() + diceValue));
-
-                // Update player's score
-                if (player.getScore() + diceValue == 21) {
-                    player.setScore(21);
-                    scanner.close();
-                    announceWinner(player);
-                    return;
-                } else if (player.getScore() + diceValue > 21) {
-                    System.out.println("Tổng điểm người chơi " + player.getName() + " đặt về 0.");
-                    player.setScore(0);
-                } else {
-                    player.setScore(player.getScore() + diceValue);
-                }
-
-            
             }
+
+            Player player = players.get(playerId - 1);
+
+            // Set random dice
+            Random random = new Random();
+            int randomDice = random.nextInt(4) + 1;
+            dice.setId(randomDice);
+            System.out.println("\nNgười chơi " + player.getName() + " nhận xúc xắc " + randomDice + ".");
+
+            // Nếu là bot sẽ delay 500ms
+            if (player instanceof VirtualPlayer) {
+                try {
+                    Thread.sleep(500); 
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // Nếu là người chơi thật tương tác để gieo
+            if (!(player instanceof VirtualPlayer)) {
+                System.out.print("\nEnter để GIEO...");
+                scanner.nextLine();
+            }
+
+            // Roll dice
+            int diceValue = dice.roll();
+            System.out.println("\nNgười chơi " + player.getName() + " gieo được " + diceValue + " điểm.");
+            System.out.println("Điểm cũ cộng điểm mới: " + player.getScore() + " + " + diceValue + " = " + (player.getScore() + diceValue));
+
+            // Update player's score
+            if (player.getScore() + diceValue == 21) {
+                player.setScore(21);
+                scanner.close();
+                announceWinner(player);
+                return;
+            } else if (player.getScore() + diceValue > 21) {
+                System.out.println("Tổng điểm người chơi " + player.getName() + " đặt về 0.");
+                player.setScore(0);
+            } else {
+                player.setScore(player.getScore() + diceValue);
+            }
+
         }
     }
 
